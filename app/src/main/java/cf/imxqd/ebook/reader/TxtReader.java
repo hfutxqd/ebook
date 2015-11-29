@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 
 /**
  * 文本读取和处理的过程与逻辑
@@ -22,9 +21,10 @@ public class TxtReader {
      * @param file 文件
      * @param encoding 编码
      * @return 完整的文件内容
-     * @throws UnsupportedEncodingException
+     * @throws IOException
      */
     static String readToString(File file, String encoding) throws Exception {
+        assert  file.exists() && file.isFile():"TxtReader断言失败：文件异常！";
         System.out.println("loading");
         Long filelength = file.length();     //获取文件长度
         char[] filecontent = new char[filelength.intValue()];
@@ -51,6 +51,7 @@ public class TxtReader {
      */
     static String[] split(String str, int length)
     {
+        assert str != null;
         int count = str.length() / length + 1;
         System.out.println(count);
         String[] arr = new String[count];

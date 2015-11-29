@@ -55,7 +55,7 @@ public class ReaderActivity extends AppCompatActivity implements View.OnLongClic
 
         assert charset != null:"ReaderActivity onCreate断言失败:charset为空";
 
-        new Thread(new Runnable() {
+        new Thread(new Runnable() {//开启新线程来加载文件，以防止阻塞UI线程
             @Override
             public void run() {
                 loading(charset);

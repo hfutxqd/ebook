@@ -54,6 +54,8 @@ public class ReaderActivity extends AppCompatActivity implements View.OnLongClic
         charset = getIntent().getStringExtra("charset");
         page = getIntent().getIntExtra("page",0);
 
+        assert charset != null:"ReaderActivity onCreate断言失败:charset为空";
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -102,7 +104,7 @@ public class ReaderActivity extends AppCompatActivity implements View.OnLongClic
     });
     final int PAGE_CHAR_OUNT = 100*1024;
     void loading(String encoding){
-        String result = null;
+        String result;
         try {
             result = readToString(file, encoding);
             Message msg = Message.obtain();

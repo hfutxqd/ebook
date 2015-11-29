@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 
 import cf.imxqd.ebook.R;
 import cf.imxqd.ebook.dao.Database;
+import cf.imxqd.ebook.reader.TxtReader;
 
 public class ReaderActivity extends AppCompatActivity implements View.OnLongClickListener
 ,View.OnClickListener{
@@ -105,45 +106,18 @@ public class ReaderActivity extends AppCompatActivity implements View.OnLongClic
      * @param encoding 文本文件编码
      */
     void loading(String encoding){
-        String result;
         try {
-            result = readToString(file, encoding);
             Message msg = Message.obtain();
             Bundle data = new Bundle();
-            data.putStringArray("text", split(result,PAGE_CHAR_OUNT));
+            data.putStringArray("text", TxtReader.getStrings(file,charset,PAGE_CHAR_OUNT));
             msg.setData(data);
             handler.sendMessage(msg);
         } catch (UnsupportedEncodingException e) {
             handler.sendEmptyMessage(0);
-        }
-    }
-
-    /**
-     * 把文本文件完整读取成String
-     * @param file 文件
-     * @param encoding 编码
-     * @return 完整的文件内容
-     * @throws UnsupportedEncodingException
-     */
-    public String readToString(File file, String encoding) throws UnsupportedEncodingException {
-        System.out.println("loading");
-        Long filelength = file.length();     //获取文件长度
-        char[] filecontent = new char[filelength.intValue()];
-        try {
-            FileInputStream in = new FileInputStream(file);
-            InputStreamReader reader = new InputStreamReader(in,encoding);
-            reader.read(filecontent);
-            reader.close();
-            in.close();
-        } catch (FileNotFoundException e) {
-            loading.setText("文件不存在！");
-        } catch (IOException e) {
-            loading.setText("文件读取失败！");
         } catch (Exception e) {
-            loading.setText("文件编码不支持！");
+            loading.setText(e.getMessage());
+            handler.sendEmptyMessage(0);
         }
-        System.out.println("loaded");
-        return new String(filecontent);//返回文件内容
     }
 
     @Override
@@ -151,32 +125,8 @@ public class ReaderActivity extends AppCompatActivity implements View.OnLongClic
     {//退出时保存进度
         System.out.println("save ScrollY to database:" + scrollView.getScrollY());
         Database database = Database.newInstance(getApplicationContext());
-        int maxcount = scrollView.getChildAt(0).getMeasuredHeight() - scrollView.getHeight();
-        float percent = scrollView.getScrollY() /(float) maxcount;
-        System.out.println(percent);
-        System.out.println(content.length);
-        System.out.println(page);
         database.set(id, charset, scrollView.getScrollY(),page);
         super.onDestroy();
-    }
-
-    /**
-     *
-     * @param str 要分割的字符串
-     * @param length 分割后单个小字符串的最大的长度
-     * @return 分割后的字符串数组
-     */
-    public String[] split(String str, int length)
-    {
-        int count = str.length() / length + 1;
-        System.out.println(count);
-        String[] arr = new String[count];
-        for(int i = 0; i < count; i++)
-        {
-            arr[i] = str.substring(i * length,
-                    (i * length + length) < str.length()?(i * length + length): str.length());
-        }
-        return arr;
     }
 
     @Override

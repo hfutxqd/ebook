@@ -11,10 +11,12 @@ import java.io.InputStreamReader;
  * Created by Henry on 2015/11/29.
  */
 public class TxtReader {
-    public static String[] getStrings(File file,String encoding, int length) throws Exception {
+    public static String[] getStrings(File file,String encoding, int length)
+            throws IOException, OutOfMemoryError {
         String text = readToString(file,encoding);
         return split(text, length);
     }
+    final static long MAX_MEMORY = 50 * 1024 * 1024l;
     /**
      * 把文本文件完整读取成String
      *
@@ -23,10 +25,16 @@ public class TxtReader {
      * @return 完整的文件内容
      * @throws IOException
      */
-    static String readToString(File file, String encoding) throws Exception {
+    static String readToString(File file, String encoding)
+            throws IOException, OutOfMemoryError{
         assert  file.exists() && file.isFile():"TxtReader断言失败：文件异常！";
         System.out.println("loading");
         Long filelength = file.length();     //获取文件长度
+
+        if(filelength > MAX_MEMORY)
+        {
+            throw new IOException("文件过大！");
+        }
         char[] filecontent = new char[filelength.intValue()];
         try {
             FileInputStream in = new FileInputStream(file);
@@ -40,6 +48,7 @@ public class TxtReader {
             throw new IOException("文件读取失败！");
         }
         System.out.println("loaded");
+
         return new String(filecontent);//返回文件内容
     }
 

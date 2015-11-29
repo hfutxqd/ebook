@@ -112,8 +112,6 @@ public class ReaderActivity extends AppCompatActivity implements View.OnLongClic
             data.putStringArray("text", TxtReader.getStrings(file,charset,PAGE_CHAR_OUNT));
             msg.setData(data);
             handler.sendMessage(msg);
-        } catch (UnsupportedEncodingException e) {
-            handler.sendEmptyMessage(0);
         } catch (Exception e) {
             loading.setText(e.getMessage());
             handler.sendEmptyMessage(0);

@@ -31,7 +31,6 @@ public class ReaderActivity extends AppCompatActivity implements View.OnLongClic
     String charset;
     String[] content;
     int page;
-
     Button next;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,46 +69,47 @@ public class ReaderActivity extends AppCompatActivity implements View.OnLongClic
             final Bundle data = msg.getData();
             if(data != null)
             {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        content = data.getStringArray("text");
-                        if (content != null) {
-                            if(content.length > page)
-                            {
-                                text.setText(content[page]);
-                                loading.setVisibility(View.GONE);
+                content = data.getStringArray("text");
+                if (content != null) {
+                    if(content.length > page)
+                    {
+                        text.setText(content[page]);
+                        loading.setVisibility(View.GONE);
 
-                                if(content.length > 1 && page != content.length - 1)
-                                {
-                                    next.setVisibility(View.VISIBLE);
-                                }else{
-                                    next.setVisibility(View.GONE);
-                                }
-                                handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        scrollView.scrollTo(0, (int) count);
-                                    }
-                                });
-                            }
+                        if(content.length > 1 && page != content.length - 1)
+                        {
+                            next.setVisibility(View.VISIBLE);
+                        }else{
+                            next.setVisibility(View.GONE);
                         }
+                        handler.post(new Runnable() {//新增UI线程来滑动ScollView,否则scrollTo无效？
+                            @Override
+                            public void run() {
+                                scrollView.scrollTo(0, (int) count);
+                            }
+                        });
                     }
-                });
+                }
+
                 return true;
             }
             Toast.makeText(getApplicationContext(), "文件加载出错！", Toast.LENGTH_SHORT).show();
             return false;
         }
     });
-    final int PAGE_CHAR_OUNT = 100*1024;
+
+    final int PAGE_CHAR_OUNT = 100*1024;//单节的最大字符数量
+
+    /**
+     * 加载并分割字符串
+     * @param encoding 文本文件编码
+     */
     void loading(String encoding){
         String result;
         try {
             result = readToString(file, encoding);
             Message msg = Message.obtain();
             Bundle data = new Bundle();
-//            data.putString("text", result);
             data.putStringArray("text", split(result,PAGE_CHAR_OUNT));
             msg.setData(data);
             handler.sendMessage(msg);
@@ -119,13 +119,12 @@ public class ReaderActivity extends AppCompatActivity implements View.OnLongClic
     }
 
     /**
-     *
+     * 把文本文件完整读取成String
      * @param file 文件
      * @param encoding 编码
      * @return 完整的文件内容
      * @throws UnsupportedEncodingException
      */
-
     public String readToString(File file, String encoding) throws UnsupportedEncodingException {
         System.out.println("loading");
         Long filelength = file.length();     //获取文件长度
